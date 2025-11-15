@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  body, html {
+    margin: 0; padding: 0; height: 100%;
+    background-color: rgba(0,0,0,0.8);
+    font-family: Arial, sans-serif;
+    color: #fff;
+  }
+  #loginScreen {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    background-color: black;
+  }
+  #loginScreen input, #loginScreen button {
+    padding: 10px;
+    font-size: 16px;
+    margin-top: 10px;
+  }
+  #mainPanel {
+    display: none;
+    height: 100vh;
+    justify-content: center;
+    align-items: center;
+  }
+  .panel {
+    background-color: #111;
+    width: 400px;
+    height: 600px;
+    border: 2px solid #d00;
+    border-radius: 4px;
+    display: flex;
+    flex-direction: column;
+    user-select: none;
+  }
+  .header {
+    background-color: #d00;
+    color: white;
+    text-align: center;
+    font-size: 20px;
+    font-weight: bold;
+    padding: 12px 0;
+    border-radius: 4px 4px 0 0;
+  }
+  .tabs {
+    display: flex;
+    justify-content: space-around;
+    background-color: #111;
+    padding: 6px 0;
+    border-bottom: 2px solid #d00;
+  }
+  .tab {
+    background-color: #c00;
+    padding: 10px 20px;
+    font-weight: bold;
+    cursor: pointer;
+    font-size: 14px;
+    border-radius: 2px;
+    user-select: none;
+    transition: background-color 0.2s ease;
+  }
+  .tab:hover, .tab.active {
+    background-color: #f00;
+    color: #fff;
+  }
+  .content {
+    padding: 20px;
+    flex-grow: 1;
+    overflow-y: auto;
+  }
+  .section { display: none; }
+  .section.active { display: block; }
+  .switch {
+    margin: 12px 0;
+    font-size: 15px;
+  }
+  input[type="checkbox"], input[type="radio"] {
+    transform: scale(1.3);
+    margin-right: 10px;
+    cursor: pointer;
+  }
+  #fovCircle {
+    position: absolute;
+    border: 2px solid red;
+    border-radius: 50%;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    display: none;
+  }
+  .dropdown {
+    position: relative;
+    display: inline-block;
+    width: 100%;
+    margin-top: 10px;
+  }
+  .dropdown-btn {
+    background-color: #222;
+    color: #fff;
+    padding: 12px 14px;
+    width: 100%;
+    border: 1px solid #555;
+    text-align: left;
+    cursor: pointer;
+    border-radius: 2px;
+  }
+  .dropdown-options {
+    display: none;
+    position: absolute;
+    background-color: #111;
+    width: 100%;
+    border: 1px solid #555;
+    z-index: 10;
+    box-sizing: border-box;
+    border-radius: 2px;
+    max-height: 120px;
+    overflow-y: auto;
+  }
+  .dropdown-options div {
+    padding: 12px 14px;
+    cursor: pointer;
+  }
+  .dropdown-options div:hover {
+    background-color: #d00;
+  }
+</style>
+</head>
+<body>
+
+<!-- TELA DE LOGIN -->
+<div id="loginScreen">
+  <h2>Digite a Senha</h2>
+  <input type="password" id="passwordInput" placeholder="Senha">
+  <button onclick="checkPassword()">Entrar</button>
+  <p id="error" style="color:red; display:none;">Senha incorreta</p>
+</div>
+
+<!-- PAINEL PRINCIPAL -->
+<div id="mainPanel">
+  <div class="panel">
+    <div class="header">LYNQ</div>
+
+    <div class="tabs">
+      <div class="tab active" onclick="showTab('aim', this)">🎯 AIM</div>
+      <div class="tab" onclick="showTab('extra', this)">⚙️ EXTRA</div>
+      <div class="tab" onclick="showTab('info', this)">👥 INFO</div>
+    </div>
+
+    <div class="content">
+      <!-- AIM -->
+      <div id="aim" class="section active">
+        <div class="switch"><label><input type="checkbox"> Ativar Aimbot</label></div>
+        <div class="switch">
+          <label><input type="checkbox" id="toggleFOV" onchange="toggleFOVCircle()"> Exibir FOV</label>
+        </div>
+        <div class="switch"><label><input type="checkbox"> Exibir Linha</label></div>
+        <div class="switch">FOV: <span id="fovValue">50</span></div>
+        <input type="range" id="fovSlider" min="10" max="200" value="50" oninput="updateFOV(this.value)" style="width: 100%; margin-top: 6px;">
+        <div class="switch">Área do Corpo:</div>
+        <div class="dropdown">
+          <div class="dropdown-btn" onclick="toggleDropdown()">Cabeça</div>
+          <div class="dropdown-options" id="bodyOptions">
+            <div onclick="selectBody('Pescoço')">Pescoço</div>
+            <div onclick="selectBody('Cabeça')">Cabeça</div>
+            <div onclick="selectBody('Peito')">Peito</div>
+          </div>
+        </div>
+        <div class="switch" style="margin-top: 16px;">
+          Tipo de Aimbot:<br>
+          <label style="margin-right: 15px;"><input type="radio" name="aimbot"> Ao Atirar</label>
+          <label><input type="radio" name="aimbot"> Ao Olhar</label>
+        </div>
+      </div>
+
+      <!-- EXTRA -->
+      <div id="extra" class="section">
+        <div class="switch"><label><input type="checkbox"> Ant Ban</label></div>
+        <div class="switch"><label><input type="checkbox"> Bypass</label></div>
+        <div class="switch"><label><input type="checkbox"> MiraTrick</label></div>
+        <div class="switch"><label><input type="checkbox"> Silent Aim</label></div>
+        <div class="switch"><label><input type="checkbox"> Auto Headshot</label></div>
+        <div class="switch"><label><input type="checkbox"> No Recoil</label></div>
+        <div class="switch" style="margin-top: 20px;">
+          <label>Cor do Tema:</label>
+          <div class="dropdown">
+            <div class="dropdown-btn" onclick="toggleColorDropdown()">Selecionar Cor</div>
+            <div class="dropdown-options" id="colorOptions">
+              <div onclick="selectColor('Roxo', '#6a0dad')">Roxo</div>
+              <div onclick="selectColor('Azul', '#007bff')">Azul</div>
+              <div onclick="selectColor('Verde', '#28a745')">Verde</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- INFO -->
+      <div id="info" class="section">
+        <p><b>Nome do Dispositivo:</b> ${name}</p>
+        <p><b>Modelo:</b> ${model}</p>
+        <p><b>Sistema:</b> ${systemName} ${systemVersion}</p>
+        <p><b>Resolução da Tela:</b> ${screenWidth} x ${screenHeight}</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="fovCircle"></div>
+
+<script>
+  function checkPassword() {
+    const correctPassword = "S"; // 🔒 Altere essa senha conforme desejado
+    const userInput = document.getElementById("passwordInput").value;
+    if (userInput === correctPassword) {
+      document.getElementById("loginScreen").style.display = "none";
+      document.getElementById("mainPanel").style.display = "flex";
+    } else {
+      document.getElementById("error").style.display = "block";
+    }
+  }
+
+  function showTab(tabId, el) {
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    document.getElementById(tabId).classList.add('active');
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    el.classList.add('active');
+    document.getElementById('bodyOptions').style.display = 'none';
+  }
+
+  function updateFOV(value) {
+    document.getElementById("fovValue").innerText = value;
+    const circle = document.getElementById("fovCircle");
+    const size = parseInt(value) * 2;
+    circle.style.width = size + "px";
+    circle.style.height = size + "px";
+  }
+
+  function toggleFOVCircle() {
+    const checkbox = document.getElementById("toggleFOV");
+    const circle = document.getElementById("fovCircle");
+    circle.style.display = checkbox.checked ? "block" : "none";
+  }
+
+  function toggleDropdown() {
+    const options = document.getElementById("bodyOptions");
+    options.style.display = options.style.display === "block" ? "none" : "block";
+  }
+
+  function selectBody(option) {
+    document.querySelector(".dropdown-btn").innerText = option;
+    document.getElementById("bodyOptions").style.display = "none";
+  }
+
+  function toggleColorDropdown() {
+    const options = document.getElementById("colorOptions");
+    options.style.display = options.style.display === "block" ? "none" : "block";
+  }
+
+  function selectColor(name, color) {
+    document.querySelectorAll(".dropdown-btn")[1].innerText = name;
+    document.querySelector(".panel").style.backgroundColor = color;
+    document.querySelector(".tabs").style.backgroundColor = color;
+    document.querySelector(".header").style.backgroundColor = color;
+    document.getElementById("colorOptions").style.display = "none";
+  }
+
+  updateFOV(document.getElementById("fovSlider").value);
+</script>
+
+</body>
+</html>
+`;
